@@ -19,12 +19,11 @@ timespec msToTimeSpec(uint64_t time)
 }
 
 class Mutex {
-	MutexType type;
+	bool initialized;
 	pthread_mutex_t mutex;
 
 public:
-	Mutex(MutexType type = MutexType::Mutex)
-		: type(type)
+	Mutex(MutexType type = MutexType::Mutex) : initialized(true)
 	{
 		pthread_mutexattr_t attr;
 		switch (type) {
@@ -35,28 +34,29 @@ public:
 			pthread_mutexattr_init(&attr);
 			pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 			pthread_mutex_init(&mutex, &attr);
+			pthread_mutexattr_destroy(&attr);
 			break;
 		}
 	}
 
 	virtual ~Mutex()
 	{
-		if (type == MutexType::Uninitialized)
+		if (!initialized)
 			return;
 		pthread_mutex_destroy(&mutex);
 	}
 
 	Mutex(Mutex&& other)
 	{
-		type = other.type;
+		initialized = other.initialized;
 		mutex = other.mutex;
-		other.type = MutexType::Uninitialized;
+		other.initialized = false;
 	}
 	Mutex& operator=(Mutex&& other)
 	{
-		type = other.type;
+		initialized = other.initialized;
 		mutex = other.mutex;
-		other.type = MutexType::Uninitialized;
+		other.initialized = false;
 		return *this;
 	}
 
