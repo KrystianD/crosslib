@@ -19,7 +19,7 @@ public:
 		MutexGuard guard(mutex);
 		if (count < 1)
 			count++;
-    cv.notifyOne();
+		cv.notifyOne();
 	}
 
 	bool take(uint32_t timeout = 0xffffffff)

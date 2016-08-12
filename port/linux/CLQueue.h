@@ -72,8 +72,8 @@ public:
 	{
 		MutexGuard guard(mutex);
 		wrIdx = rdIdx = _size = 0;
-    condVarPut.notifyOne();
-    return true;
+		condVarPut.notifyOne();
+		return true;
 	}
 
 private:
