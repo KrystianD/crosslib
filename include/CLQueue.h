@@ -4,9 +4,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <CLMutex.h>
-#include <CLCondVar.h>
-
 namespace CrossLib {
 template<typename T>
 class Queue {
