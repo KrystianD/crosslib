@@ -9,17 +9,38 @@
 
 namespace CrossLib {
 class CondVar {
+	bool initialized;
 	pthread_cond_t cond;
 
 public:
 	CondVar()
 	{
 		pthread_cond_init(&cond, NULL);
+		initialized = true;
 	}
 
 	~CondVar()
 	{
+		if (!initialized)
+			return;
 		pthread_cond_destroy(&cond);
+	}
+
+	CondVar(CondVar&& other)
+	{
+		initialized = other.initialized;
+		cond = other.cond;
+		other.initialized = false;
+	}
+	CondVar& operator=(CondVar&& other)
+	{
+		if (initialized)
+			pthread_cond_destroy(&cond);
+
+		initialized = other.initialized;
+		cond = other.cond;
+		other.initialized = false;
+		return *this;
 	}
 
 	void notifyOne()
@@ -32,12 +53,13 @@ public:
 	}
 	bool wait(Mutex& mutex, uint32_t timeout = 0xffffffff)
 	{
+		pthread_mutex_t *pmutex = (pthread_mutex_t*)mutex.getMutex();
 		if (timeout == 0xffffffff) {
-			return pthread_cond_wait(&cond, (pthread_mutex_t*)mutex.getMutex()) == 0;
+			return pthread_cond_wait(&cond, pmutex) == 0;
 		} else {
 			uint64_t future = OS::getTime() + timeout;
 			timespec timeToWait = msToTimeSpec(future);
-			return pthread_cond_timedwait(&cond, (pthread_mutex_t*)mutex.getMutex(), &timeToWait) == 0;
+			return pthread_cond_timedwait(&cond, pmutex, &timeToWait) == 0;
 		}
 	}
 	bool waitFor(MutexGuard& guard, std::function<bool()> func)
@@ -46,27 +68,22 @@ public:
 	}
 	bool waitFor(MutexGuard& guard, uint32_t timeout, std::function<bool()> func)
 	{
-		pthread_mutex_t *pmutex = (pthread_mutex_t*)guard.getMutex().getMutex();
-
+		Mutex& mutex = guard.getMutex();
 		uint64_t startTime = OS::getTime();
 
-		for (;;) {
-			if (func())
-				return true;
-
+		while (!func()) {
+			uint32_t toWait;
 			if (timeout == 0xffffffff) {
-				pthread_cond_wait(&cond, pmutex);
+				toWait = 0xffffffff;
 			} else {
 				uint64_t elapsed = OS::getTime() - startTime;
 				if (elapsed >= timeout)
 					return false;
-				uint64_t toWait = timeout - elapsed;
-
-				uint64_t future = OS::getTime() + toWait;
-				timespec timeToWait = msToTimeSpec(future);
-				pthread_cond_timedwait(&cond, pmutex, &timeToWait);
+				toWait = (uint32_t)(timeout - elapsed);
 			}
+			wait(mutex, toWait);
 		}
+		return true;
 	}
 };
 }

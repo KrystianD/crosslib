@@ -10,6 +10,13 @@
 namespace CrossLib {
 template<typename T>
 class Queue {
+	Mutex mutex;
+	CondVar condVarGet, condVarPut;
+
+	uint32_t maxSize;
+	uint32_t _size, wrIdx, rdIdx;
+	uint8_t* array;
+
 public:
 	Queue(uint32_t maxSize)
 		: maxSize(maxSize), _size(0), array(0), wrIdx(0), rdIdx(0)
@@ -19,8 +26,36 @@ public:
 
 	~Queue()
 	{
+		if (array) {
+			delete [] array;
+			array = 0;
+		}
+	}
+
+	Queue(Queue&& other)
+	{
+		mutex = std::move(other.mutex);
+		condVarGet = std::move(other.condVarGet);
+		condVarPut = std::move(other.condVarPut);
+		maxSize = other.maxSize;
+		_size = other._size;
+		wrIdx = other.wrIdx;
+		array = other.array;
+		other.array = nullptr;
+	}
+	Queue& operator=(Queue&& other)
+	{
 		if (array)
 			delete [] array;
+		mutex = std::move(other.mutex);
+		condVarGet = std::move(other.condVarGet);
+		condVarPut = std::move(other.condVarPut);
+		maxSize = other.maxSize;
+		_size = other._size;
+		wrIdx = other.wrIdx;
+		array = other.array;
+		other.array = nullptr;
+		return *this;
 	}
 
 	bool put(const T& item, uint32_t timeout = 0xffffffff)
@@ -62,10 +97,16 @@ public:
 		}
 	}
 
-	uint32_t size() const
+	uint32_t size()
 	{
 		MutexGuard guard(mutex);
 		return _size;
+	}
+
+	uint32_t freeSpace()
+	{
+		MutexGuard guard(mutex);
+		return maxSize - _size;
 	}
 
 	bool clear()
@@ -77,13 +118,6 @@ public:
 	}
 
 private:
-	Mutex mutex;
-	CondVar condVarGet, condVarPut;
-
-	uint32_t maxSize;
-	uint32_t _size, wrIdx, rdIdx;
-	uint8_t* array;
-
 	Queue(const Queue&) = delete;
 };
 

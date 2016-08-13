@@ -14,12 +14,27 @@ public:
 	Semaphore() : count(0) { }
 	~Semaphore() { }
 
-	void give()
+	Semaphore(Semaphore&& other)
+	{
+		mutex = std::move(other.mutex);
+		cv = std::move(other.cv);
+		count = other.count;
+	}
+	Semaphore& operator=(Semaphore&& other)
+	{
+		mutex = std::move(other.mutex);
+		cv = std::move(other.cv);
+		count = other.count;
+		return *this;
+	}
+
+	bool give()
 	{
 		MutexGuard guard(mutex);
 		if (count < 1)
 			count++;
 		cv.notifyOne();
+		return true;
 	}
 
 	bool take(uint32_t timeout = 0xffffffff)
@@ -31,6 +46,11 @@ public:
 		} else {
 			return false;
 		}
+	}
+
+	bool trytake()
+	{
+		return take(0);
 	}
 
 private:

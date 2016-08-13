@@ -54,6 +54,8 @@ public:
 	}
 	Mutex& operator=(Mutex&& other)
 	{
+		if (initialized)
+			pthread_mutex_destroy(&mutex);
 		initialized = other.initialized;
 		mutex = other.mutex;
 		other.initialized = false;
@@ -64,6 +66,7 @@ public:
 	{
 		return pthread_mutex_unlock(&mutex) == 0;
 	}
+
 	bool lock(uint32_t timeout = 0xffffffff)
 	{
 		if (timeout == 0xffffffff) {
@@ -74,6 +77,7 @@ public:
 			return pthread_mutex_timedlock(&mutex, &timeToWait) == 0;
 		}
 	}
+
 	bool trylock()
 	{
 		return pthread_mutex_trylock(&mutex) == 0;
