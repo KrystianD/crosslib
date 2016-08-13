@@ -6,17 +6,10 @@
 #include <algorithm>
 
 #include "CLOS.h"
+#include "CLUtils.h"
 
 namespace CrossLib {
 enum class MutexType { Normal, Recursive, Uninitialized };
-
-timespec msToTimeSpec(uint64_t time)
-{
-	timespec ts;
-	ts.tv_sec = time / 1000ul;
-	ts.tv_nsec = (time - (ts.tv_sec * 1000ul)) * 1000000ul;
-	return ts;
-}
 
 class Mutex {
 	bool initialized;
@@ -92,10 +85,10 @@ private:
 	Mutex(const Mutex&) = delete;
 };
 
-class Recursive : public Mutex {
+class RecursiveMutex : public Mutex {
 public:
-	Recursive() : Mutex(MutexType::Recursive) { }
-	~Recursive() { }
+	RecursiveMutex() : Mutex(MutexType::Recursive) { }
+	~RecursiveMutex() { }
 };
 
 class MutexGuard {

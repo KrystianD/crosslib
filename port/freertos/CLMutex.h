@@ -13,7 +13,7 @@ extern "C" {
 #include "CLUtils.h"
 
 namespace CrossLib {
-enum class MutexType { Mutex, RecursiveMutex, Uninitialized };
+enum class MutexType { Normal, Recursive, Uninitialized };
 
 class Mutex {
 	MutexType type;
@@ -23,10 +23,10 @@ public:
 	Mutex(MutexType type = MutexType::Mutex) : type(type)
 	{
 		switch (type) {
-		case MutexType::Mutex:
+		case MutexType::Normal:
 			mutex = xSemaphoreCreateMutex();
 			break;
-		case MutexType::RecursiveMutex:
+		case MutexType::Recursive:
 			mutex = xSemaphoreCreateRecursiveMutex();
 			break;
 		}
@@ -60,7 +60,7 @@ public:
 
 	bool unlock()
 	{
-		if (type == MutexType::RecursiveMutex)
+		if (type == MutexType::Recursive)
 			return xSemaphoreGiveRecursive(mutex) == pdTRUE;
 		else
 			return xSemaphoreGive(mutex) == pdTRUE;
@@ -68,7 +68,7 @@ public:
 
 	bool lock(uint32_t timeout = 0xffffffff)
 	{
-		if (type == MutexType::RecursiveMutex)
+		if (type == MutexType::Recursive)
 			return xSemaphoreTakeRecursive(mutex, msToTicks(timeout)) == pdTRUE;
 		else
 			return xSemaphoreTake(mutex, msToTicks(timeout)) == pdTRUE;
@@ -90,7 +90,7 @@ private:
 
 class RecursiveMutex : public Mutex {
 public:
-	RecursiveMutex() : Mutex(MutexType::RecursiveMutex) { }
+	RecursiveMutex() : Mutex(MutexType::Recursive) { }
 	~RecursiveMutex() { }
 };
 

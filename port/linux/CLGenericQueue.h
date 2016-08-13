@@ -18,7 +18,7 @@ class GenericQueue {
 
 public:
 	GenericQueue(uint32_t maxSize, uint32_t itemSize)
-		: mutex(MutexType::Normal), maxSize(maxSize), itemSize(itemSize), _size(0), wrIdx(0), rdIdx(0), array(0)
+		: maxSize(maxSize), itemSize(itemSize), _size(0), wrIdx(0), rdIdx(0), array(0)
 	{
 		array = new uint8_t[maxSize * itemSize];
 	}
