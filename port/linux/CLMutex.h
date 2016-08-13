@@ -8,7 +8,7 @@
 #include "CLOS.h"
 
 namespace CrossLib {
-enum class MutexType { Mutex, RecursiveMutex, Uninitialized };
+enum class MutexType { Normal, Recursive, Uninitialized };
 
 timespec msToTimeSpec(uint64_t time)
 {
@@ -23,14 +23,14 @@ class Mutex {
 	pthread_mutex_t mutex;
 
 public:
-	Mutex(MutexType type = MutexType::Mutex) : initialized(true)
+	Mutex(MutexType type = MutexType::Normal) : initialized(true)
 	{
 		pthread_mutexattr_t attr;
 		switch (type) {
-		case MutexType::Mutex:
+		case MutexType::Normal:
 			pthread_mutex_init(&mutex, NULL);
 			break;
-		case MutexType::RecursiveMutex:
+		case MutexType::Recursive:
 			pthread_mutexattr_init(&attr);
 			pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 			pthread_mutex_init(&mutex, &attr);
@@ -92,10 +92,10 @@ private:
 	Mutex(const Mutex&) = delete;
 };
 
-class RecursiveMutex : public Mutex {
+class Recursive : public Mutex {
 public:
-	RecursiveMutex() : Mutex(MutexType::RecursiveMutex) { }
-	~RecursiveMutex() { }
+	Recursive() : Mutex(MutexType::Recursive) { }
+	~Recursive() { }
 };
 
 class MutexGuard {

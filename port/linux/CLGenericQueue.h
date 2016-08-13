@@ -1,5 +1,5 @@
-#ifndef __CLQUEUE_H__
-#define __CLQUEUE_H__
+#ifndef __CLGENERICQUEUE_H__
+#define __CLGENERICQUEUE_H__
 
 #include <stdint.h>
 #include <string.h>
@@ -8,23 +8,22 @@
 #include "CLCondVar.h"
 
 namespace CrossLib {
-template<typename T>
-class Queue {
+class GenericQueue {
 	Mutex mutex;
 	CondVar condVarGet, condVarPut;
 
-	uint32_t maxSize;
+	uint32_t maxSize, itemSize;
 	uint32_t _size, wrIdx, rdIdx;
 	uint8_t* array;
 
 public:
-	Queue(uint32_t maxSize)
-		: maxSize(maxSize), _size(0), array(0), wrIdx(0), rdIdx(0)
+	GenericQueue(uint32_t maxSize, uint32_t itemSize)
+		: mutex(MutexType::Normal), maxSize(maxSize), itemSize(itemSize), _size(0), wrIdx(0), rdIdx(0), array(0)
 	{
-		array = new uint8_t[maxSize * sizeof(T)];
+		array = new uint8_t[maxSize * itemSize];
 	}
 
-	~Queue()
+	~GenericQueue()
 	{
 		if (array) {
 			delete [] array;
@@ -32,7 +31,7 @@ public:
 		}
 	}
 
-	Queue(Queue&& other)
+	GenericQueue(GenericQueue&& other)
 	{
 		mutex = std::move(other.mutex);
 		condVarGet = std::move(other.condVarGet);
@@ -43,7 +42,7 @@ public:
 		array = other.array;
 		other.array = nullptr;
 	}
-	Queue& operator=(Queue&& other)
+	GenericQueue& operator=(GenericQueue&& other)
 	{
 		if (array)
 			delete [] array;
@@ -58,11 +57,11 @@ public:
 		return *this;
 	}
 
-	bool put(const T& item, uint32_t timeout = 0xffffffff)
+	bool put(const void* item, uint32_t timeout = 0xffffffff)
 	{
 		MutexGuard guard(mutex);
 		if (condVarPut.waitFor(guard, timeout, [this]() { return _size < maxSize; })) {
-			memcpy(array + wrIdx * sizeof(T), &item, sizeof(T));
+			memcpy(array + wrIdx * itemSize, item, itemSize);
 			_size++;
 			wrIdx = (wrIdx + 1) % maxSize;
 			condVarGet.notifyOne();
@@ -72,11 +71,16 @@ public:
 		}
 	}
 
-	bool get(T& item, uint32_t timeout = 0xffffffff)
+	bool putFromISR(const void* item, long* xHigherPriorityTaskWoken)
+	{
+		return put(item, 0);
+	}
+
+	bool get(void* item, uint32_t timeout = 0xffffffff)
 	{
 		MutexGuard guard(mutex);
 		if (condVarGet.waitFor(guard, timeout, [this]() { return _size > 0; })) {
-			memcpy(&item, array + rdIdx * sizeof(T), sizeof(T));
+			memcpy(item, array + rdIdx * itemSize, itemSize);
 			_size--;
 			rdIdx = (rdIdx + 1) % maxSize;
 			condVarPut.notifyOne();
@@ -86,11 +90,11 @@ public:
 		}
 	}
 
-	bool peek(T& item, uint32_t timeout = 0xffffffff)
+	bool peek(void* item, uint32_t timeout = 0xffffffff)
 	{
 		MutexGuard guard(mutex);
 		if (condVarGet.waitFor(guard, timeout, [this]() { return _size > 0; })) {
-			memcpy(&item, array + rdIdx * sizeof(T), sizeof(T));
+			memcpy(item, array + rdIdx * itemSize, itemSize);
 			return true;
 		} else {
 			return false;
@@ -118,10 +122,8 @@ public:
 	}
 
 private:
-	Queue(const Queue&) = delete;
+	GenericQueue(const GenericQueue&) = delete;
 };
-
-
 }
 
 #endif
