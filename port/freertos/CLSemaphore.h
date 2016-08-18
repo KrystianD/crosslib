@@ -12,7 +12,7 @@ extern "C" {
 #include "CLOS.h"
 #include "CLUtils.h"
 
-namespace CrossLib {
+namespace crosslib {
 
 class Semaphore {
 	xSemaphoreHandle semphr;

@@ -11,7 +11,7 @@ extern "C" {
 // #include "croutine.h"
 }
 
-namespace CrossLib {
+namespace crosslib {
 class OS {
 public:
 	static uint32_t getTime32()

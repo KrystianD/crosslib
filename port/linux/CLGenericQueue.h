@@ -7,7 +7,7 @@
 #include "CLMutex.h"
 #include "CLCondVar.h"
 
-namespace CrossLib {
+namespace crosslib {
 class GenericQueue {
 	Mutex mutex;
 	CondVar condVarGet, condVarPut;

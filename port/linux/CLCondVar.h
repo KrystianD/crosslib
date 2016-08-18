@@ -7,7 +7,7 @@
 
 #include "CLMutex.h"
 
-namespace CrossLib {
+namespace crosslib {
 class CondVar {
 	bool initialized;
 	pthread_cond_t cond;

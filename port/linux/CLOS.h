@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <sys/time.h>
 
-namespace CrossLib {
+namespace crosslib {
 class OS {
 public:
 	static uint32_t getTime32()

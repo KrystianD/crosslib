@@ -7,9 +7,9 @@ extern "C" {
 #include "FreeRTOS.h"
 }
 
-namespace CrossLib {
+namespace crosslib {
 
-uint32_t msToTicks(uint32_t ms)
+static inline uint32_t msToTicks(uint32_t ms)
 {
 	if (ms == 0xffffffff) {
 		return 0xffffffff;

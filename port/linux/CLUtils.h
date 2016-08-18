@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-namespace CrossLib {
+namespace crosslib {
 
-timespec msToTimeSpec(uint64_t time)
+static inline timespec msToTimeSpec(uint64_t time)
 {
 	timespec ts;
 	ts.tv_sec = time / 1000ul;

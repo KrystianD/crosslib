@@ -9,7 +9,7 @@ extern "C" {
 #include "queue.h"
 }
 
-namespace CrossLib {
+namespace crosslib {
 class GenericQueue {
 	xQueueHandle queue;
 	uint32_t itemSize;

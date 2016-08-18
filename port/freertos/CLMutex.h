@@ -12,7 +12,7 @@ extern "C" {
 #include "CLOS.h"
 #include "CLUtils.h"
 
-namespace CrossLib {
+namespace crosslib {
 enum class MutexType { Normal, Recursive, Uninitialized };
 
 class Mutex {
