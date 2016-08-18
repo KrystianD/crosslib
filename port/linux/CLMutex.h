@@ -29,6 +29,8 @@ public:
 			pthread_mutex_init(&mutex, &attr);
 			pthread_mutexattr_destroy(&attr);
 			break;
+		default:
+			break;
 		}
 	}
 

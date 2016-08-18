@@ -12,11 +12,11 @@ extern "C" {
 namespace crosslib {
 class GenericQueue {
 	xQueueHandle queue;
-	uint32_t itemSize;
+	uint32_t maxSize, itemSize;
 
 public:
 	GenericQueue(uint32_t maxSize, uint32_t itemSize)
-		: itemSize(itemSize)
+		: maxSize(maxSize), itemSize(itemSize)
 	{
 		queue = xQueueCreate(maxSize, itemSize);
 	}
@@ -70,11 +70,7 @@ public:
 
 	uint32_t freeSpace()
 	{
-#ifndef FREERTOS_SIM
-		return uxQueueSpacesAvailable(queue);
-#else
-		return -1;
-#endif
+		return maxSize - size();
 	}
 
 	bool clear()

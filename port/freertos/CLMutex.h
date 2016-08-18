@@ -20,7 +20,7 @@ class Mutex {
 	xSemaphoreHandle mutex;
 
 public:
-	Mutex(MutexType type = MutexType::Mutex) : type(type)
+	Mutex(MutexType type = MutexType::Normal) : type(type)
 	{
 		switch (type) {
 		case MutexType::Normal:
@@ -28,6 +28,8 @@ public:
 			break;
 		case MutexType::Recursive:
 			mutex = xSemaphoreCreateRecursiveMutex();
+			break;
+		default:
 			break;
 		}
 	}
