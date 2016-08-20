@@ -33,6 +33,11 @@ public:
 		return queue.put(&item, timeout);
 	}
 
+	bool putFront(const T& item, uint32_t timeout = 0xffffffff)
+	{
+		return queue.putFront(&item, timeout);
+	}
+
 	bool putFromISR(const T& item, long* xHigherPriorityTaskWoken)
 	{
 		return queue.put(&item, xHigherPriorityTaskWoken);

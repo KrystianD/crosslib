@@ -38,10 +38,12 @@ public:
 		condVarPut = std::move(other.condVarPut);
 		maxSize = other.maxSize;
 		_size = other._size;
+		rdIdx = other.rdIdx;
 		wrIdx = other.wrIdx;
 		array = other.array;
 		other.array = nullptr;
 	}
+
 	GenericQueue& operator=(GenericQueue&& other)
 	{
 		if (array)
@@ -51,6 +53,7 @@ public:
 		condVarPut = std::move(other.condVarPut);
 		maxSize = other.maxSize;
 		_size = other._size;
+		rdIdx = other.rdIdx;
 		wrIdx = other.wrIdx;
 		array = other.array;
 		other.array = nullptr;
@@ -64,6 +67,23 @@ public:
 			memcpy(array + wrIdx * itemSize, item, itemSize);
 			_size++;
 			wrIdx = (wrIdx + 1) % maxSize;
+			condVarGet.notifyOne();
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	bool putFront(const void* item, uint32_t timeout = 0xffffffff)
+	{
+		MutexGuard guard(mutex);
+		if (condVarPut.waitFor(guard, timeout, [this]() { return _size < maxSize; })) {
+			if (rdIdx == 0)
+				rdIdx = maxSize - 1;
+			else
+				rdIdx--;
+			memcpy(array + rdIdx * itemSize, item, itemSize);
+			_size++;
 			condVarGet.notifyOne();
 			return true;
 		} else {
