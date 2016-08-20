@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 namespace crosslib {
 class OS {
@@ -18,6 +19,10 @@ public:
 		struct timeval now;
 		gettimeofday(&now, nullptr);
 		return now.tv_sec * 1000ul + now.tv_usec / 1000ul;
+	}
+	static void sleep(uint32_t delayMs)
+	{
+		usleep(delayMs * 1000);
 	}
 };
 }

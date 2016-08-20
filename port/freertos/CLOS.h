@@ -7,9 +7,9 @@
 extern "C" {
 #include "FreeRTOS.h"
 #include "task.h"
-// #include "queue.h"
-// #include "croutine.h"
 }
+
+#include <CLUtils.h>
 
 namespace crosslib {
 class OS {
@@ -21,6 +21,10 @@ public:
 	static uint64_t getTime()
 	{
 		return xTaskGetTickCount() * 1000 / configTICK_RATE_HZ;
+	}
+	static void sleep(uint32_t delayMs)
+	{
+		vTaskDelay(msToTicks(delayMs));
 	}
 };
 }
