@@ -4,87 +4,70 @@
 #include <stdint.h>
 #include <string.h>
 
-extern "C" {
-#include "FreeRTOS.h"
-#include "queue.h"
-}
-
 namespace crosslib {
 class GenericQueue {
-	xQueueHandle queue;
-	uint32_t maxSize, itemSize;
+	hGenericQueue queue;
 
 public:
 	GenericQueue(uint32_t maxSize, uint32_t itemSize)
-		: maxSize(maxSize), itemSize(itemSize)
+		: queue(maxSize, itemSize)
 	{
-		queue = xQueueCreate(maxSize, itemSize);
 	}
 
 	~GenericQueue()
 	{
-		if (queue)
-			vQueueDelete(queue);
 	}
 
-	GenericQueue(GenericQueue&& other)
+	/*GenericQueue(GenericQueue&& other)
 	{
-		if (queue)
-			vQueueDelete(queue);
 		queue = other.queue;
 		other.queue = nullptr;
 	}
 	GenericQueue& operator=(GenericQueue&& other)
 	{
-		if (queue)
-			vQueueDelete(queue);
 		queue = other.queue;
 		other.queue = nullptr;
 		return *this;
-	}
+	}*/
 
 	bool put(const void* item, uint32_t timeout = 0xffffffff)
 	{
-		return xQueueSendToBack(queue, item, msToTicks(timeout)) == pdTRUE;
+		return queue.put(item, timeout);
 	}
-
+	
 	bool putFront(const void* item, uint32_t timeout = 0xffffffff)
 	{
-		return xQueueSendToFront(queue, item, msToTicks(timeout)) == pdTRUE;
+		return queue.putFront(item, timeout);
 	}
 
 	bool putFromISR(const void* item, long* xHigherPriorityTaskWoken)
 	{
-		return xQueueSendToBackFromISR(queue, item, xHigherPriorityTaskWoken) == pdTRUE;
+		return queue.putFromISR(item, xHigherPriorityTaskWoken);
 	}
 
 	bool get(void* item, uint32_t timeout = 0xffffffff)
 	{
-		return xQueueReceive(queue, item, msToTicks(timeout)) == pdTRUE;
+		return queue.get(item, timeout);
 	}
 
 	bool peek(void* item, uint32_t timeout = 0xffffffff)
 	{
-		return xQueuePeek(queue, item, msToTicks(timeout)) == pdTRUE;
+		return queue.peek(item, timeout);
 	}
 
 	uint32_t size()
 	{
-		return uxQueueMessagesWaiting(queue);
+		return queue.size();
 	}
 
 	uint32_t freeSpace()
 	{
-		return maxSize - size();
+		return queue.freeSpace();
 	}
 
 	bool clear()
 	{
-#ifndef FREERTOS_SIM
-		return xQueueReset(queue) == pdTRUE;
-#else
-		return false;
-#endif
+		return queue.clear();
 	}
 
 private:
