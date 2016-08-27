@@ -41,23 +41,23 @@ public:
 
 	Thread(Thread&& other)
 	{
-		if (other.thread) {
+		if (other.thread)
 			OS::error("cannot move started thread");
-		}
+
 		handler = std::move(other.handler);
 		attrs = other.attrs;
 	}
 	Thread& operator=(Thread&& other)
 	{
-		if (other.thread) {
+		if (other.thread)
 			OS::error("cannot move started thread");
-		}
+
 		handler = std::move(other.handler);
 		attrs = other.attrs;
 		return *this;
 	}
 
-	void run();
+	void start();
 	bool join(uint32_t timeout = 0xffffffff);
 	bool hasStarted() const;
 	bool isRunning() const;

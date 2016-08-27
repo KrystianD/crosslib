@@ -6,22 +6,23 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#include <CLCommon.h>
+
 extern void crosslib_on_error(const char* fmt, va_list arg);
 
 namespace crosslib {
+
 class OS {
 public:
-	static uint32_t getTime32()
+	static uint64_t getTimeMS()
 	{
-		struct timeval now;
-		gettimeofday(&now, nullptr);
-		return now.tv_sec * 1000ul + now.tv_usec / 1000ul;
+		return getTime().milliseconds();
 	}
-	static uint64_t getTime()
+	static Time getTime()
 	{
 		struct timeval now;
 		gettimeofday(&now, nullptr);
-		return now.tv_sec * 1000ul + now.tv_usec / 1000ul;
+		return Time::fromTimeval(now);
 	}
 	static void sleep(uint32_t delayMs)
 	{
@@ -37,6 +38,18 @@ public:
 		va_start(arg, fmt);
 		crosslib_on_error(fmt, arg);
 		exit(99);
+	}
+	static Time getClockRealtime()
+	{
+		timespec ts;
+		clock_gettime(CLOCK_REALTIME, &ts);
+		return Time::fromTimespec(ts);
+	}
+	static Time getClockMonotonic()
+	{
+		timespec ts;
+		clock_gettime(CLOCK_MONOTONIC, &ts);
+		return Time::fromTimespec(ts);
 	}
 };
 }

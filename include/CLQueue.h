@@ -84,13 +84,13 @@ public:
 	int putMultipleAll(T items[], int length, uint32_t timeout = 0xffffffff)
 	{
 		int pos = 0;
-		uint64_t startTime = OS::getTime();
+		uint64_t startTime = OS::getTimeMS();
 		while (pos < length) {
 			uint32_t toWait;
 			if (timeout == 0xffffffff) {
 				toWait = 0xffffffff;
 			} else {
-				uint64_t elapsed = OS::getTime() - startTime;
+				uint64_t elapsed = OS::getTimeMS() - startTime;
 				if (elapsed >= timeout)
 					break;
 				toWait = (uint32_t)(timeout - elapsed);
@@ -117,13 +117,13 @@ public:
 	int getMultipleAll(T items[], int length, uint32_t timeout = 0xffffffff)
 	{
 		int pos = 0;
-		uint64_t startTime = OS::getTime();
+		uint64_t startTime = OS::getTimeMS();
 		while (pos < length) {
 			uint32_t toWait;
 			if (timeout == 0xffffffff) {
 				toWait = 0xffffffff;
 			} else {
-				uint64_t elapsed = OS::getTime() - startTime;
+				uint64_t elapsed = OS::getTimeMS() - startTime;
 				if (elapsed >= timeout)
 					break;
 				toWait = (uint32_t)(timeout - elapsed);

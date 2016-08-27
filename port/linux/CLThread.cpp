@@ -20,10 +20,10 @@ static inline int schedToVal(Scheduler sched)
 	switch (sched) {
 	case Scheduler::Default:
 	case Scheduler::Other: return SCHED_OTHER;
-	case Scheduler::Batch: return  SCHED_BATCH;
-	case Scheduler::Idle: return  SCHED_IDLE;
-	case Scheduler::FIFO: return  SCHED_FIFO;
-	case Scheduler::RoundRobin: return  SCHED_RR;
+	case Scheduler::Batch: return SCHED_BATCH;
+	case Scheduler::Idle: return SCHED_IDLE;
+	case Scheduler::FIFO: return SCHED_FIFO;
+	case Scheduler::RoundRobin: return SCHED_RR;
 	}
 }
 
@@ -36,7 +36,7 @@ Thread::Thread(const Handler& handler)
 {
 }
 Thread::Thread(const HandlerUserData& handler, void* userdata)
-	: handler([this,handler,userdata]() { handler(userdata); }), thread(0)
+	: handler([this, handler, userdata]() { handler(userdata); }), thread(0)
 {
 }
 Thread::Thread(const ThreadAttributes& attrs, const Handler& handler)
@@ -44,18 +44,17 @@ Thread::Thread(const ThreadAttributes& attrs, const Handler& handler)
 {
 }
 Thread::Thread(const ThreadAttributes& attrs, const HandlerUserData& handler, void* userdata)
-	: attrs(attrs), handler([this,handler,userdata]() { handler(userdata); }), thread(0)
+	: attrs(attrs), handler([this, handler, userdata]() { handler(userdata); }), thread(0)
 {
 }
 
 Thread::~Thread()
 {
-	if (isRunning()) {
+	if (isRunning())
 		OS::error("thread is running while destroying an object (id: %lu, name: %s)", thread, attrs.name);
-	}
 }
 
-void Thread::run()
+void Thread::start()
 {
 	if (!handler)
 		OS::error("no handler for thread");
@@ -80,9 +79,8 @@ void Thread::run()
 		sched_param sp;
 		sp.sched_priority = attrs.priority;
 
-		if (sched != Scheduler::RoundRobin && sched != Scheduler::FIFO) {
+		if (sched != Scheduler::RoundRobin && sched != Scheduler::FIFO)
 			OS::error("scheduler for priority must be RouindRobin or FIFO");
-		}
 
 		pthread_attr_setschedparam(&attr, &sp);
 	}
@@ -98,9 +96,9 @@ bool Thread::join(uint32_t timeout)
 	} else if (timeout == 0) {
 		return pthread_tryjoin_np(thread, 0) == 0;
 	} else {
-		uint64_t future = OS::getTime() + timeout;
-		timespec timeToWait = msToTimeSpec(future);
-		return pthread_timedjoin_np(thread, 0, &timeToWait) == 0;
+		Time future = OS::getTime().addMS(timeout);
+		timespec ts = future.toTimespec();
+		return pthread_timedjoin_np(thread, 0, &ts) == 0;
 	}
 }
 
@@ -119,7 +117,7 @@ bool Thread::isRunning() const
 	} else if (res == ESRCH) { // thread is not running
 		return false;
 	} else {
-		OS::error("invalid kill call (id: %lu, name: %s)", thread, attrs.name);
+		OS::error("invalid pthread_kill call (id: %lu, name: %s)", thread, attrs.name);
 	}
 }
 

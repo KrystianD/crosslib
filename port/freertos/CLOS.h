@@ -11,19 +11,20 @@ extern "C" {
 }
 
 #include <CLUtils.h>
+#include <CLCommon.h>
 
 extern void crosslib_on_error(const char* fmt, va_list arg);
 
 namespace crosslib {
 class OS {
 public:
-	static uint32_t getTime32()
+	static uint32_t getTimeMS()
 	{
-		return xTaskGetTickCount() * 1000 / configTICK_RATE_HZ;
+		return getTime().milliseconds();
 	}
-	static uint64_t getTime()
+	static Time getTime()
 	{
-		return xTaskGetTickCount() * 1000 / configTICK_RATE_HZ;
+		return Time::fromMilliseconds(xTaskGetTickCount() * 1000 / configTICK_RATE_HZ);
 	}
 	static void sleep(uint32_t delayMs)
 	{

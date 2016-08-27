@@ -15,7 +15,14 @@ class CondVar {
 public:
 	CondVar()
 	{
-		pthread_cond_init(&cond, NULL);
+		pthread_condattr_t attr;
+		pthread_condattr_init(&attr);
+		if (pthread_condattr_setclock(&attr, CLOCK_MONOTONIC) != 0)
+			OS::error("unable to set clock to MONOTONIC");
+
+		pthread_cond_init(&cond, &attr);
+		pthread_condattr_destroy(&attr);
+
 		initialized = true;
 	}
 
@@ -57,9 +64,9 @@ public:
 		if (timeout == 0xffffffff) {
 			return pthread_cond_wait(&cond, pmutex) == 0;
 		} else {
-			uint64_t future = OS::getTime() + timeout;
-			timespec timeToWait = msToTimeSpec(future);
-			return pthread_cond_timedwait(&cond, pmutex, &timeToWait) == 0;
+			Time future = OS::getClockMonotonic().addMS(timeout);
+			timespec ts = future.toTimespec();
+			return pthread_cond_timedwait(&cond, pmutex, &ts) == 0;
 		}
 	}
 	bool waitFor(MutexGuard& guard, std::function<bool()> func)
@@ -69,14 +76,14 @@ public:
 	bool waitFor(MutexGuard& guard, uint32_t timeout, std::function<bool()> func)
 	{
 		Mutex& mutex = guard.getMutex();
-		uint64_t startTime = OS::getTime();
+		uint64_t startTime = OS::getTimeMS();
 
 		while (!func()) {
 			uint32_t toWait;
 			if (timeout == 0xffffffff) {
 				toWait = 0xffffffff;
 			} else {
-				uint64_t elapsed = OS::getTime() - startTime;
+				uint64_t elapsed = OS::getTimeMS() - startTime;
 				if (elapsed >= timeout)
 					return false;
 				toWait = (uint32_t)(timeout - elapsed);

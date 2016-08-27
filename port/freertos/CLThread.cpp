@@ -42,7 +42,7 @@ Thread::~Thread()
 	}
 }
 
-void Thread::run()
+void Thread::start()
 {
 	if (!handler) 
 		OS::error("no handler for thread");

@@ -52,7 +52,7 @@ public:
 		return *this;
 	}
 
-	void run();
+	void start();
 	bool join(uint32_t timeout = 0xffffffff);
 	bool hasStarted() const;
 	bool isRunning() const;

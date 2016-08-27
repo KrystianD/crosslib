@@ -19,19 +19,19 @@ public:
 	Mutex(MutexType type = MutexType::Normal) : initialized(true)
 	{
 		pthread_mutexattr_t attr;
+		pthread_mutexattr_init(&attr);
 		switch (type) {
 		case MutexType::Normal:
 			pthread_mutex_init(&mutex, NULL);
 			break;
 		case MutexType::Recursive:
-			pthread_mutexattr_init(&attr);
 			pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 			pthread_mutex_init(&mutex, &attr);
-			pthread_mutexattr_destroy(&attr);
 			break;
 		default:
 			break;
 		}
+		pthread_mutexattr_destroy(&attr);
 	}
 
 	virtual ~Mutex()
@@ -69,9 +69,9 @@ public:
 		} else if (timeout == 0) {
 			return pthread_mutex_trylock(&mutex) == 0;
 		} else {
-			uint64_t future = OS::getTime() + timeout;
-			timespec timeToWait = msToTimeSpec(future);
-			return pthread_mutex_timedlock(&mutex, &timeToWait) == 0;
+			Time future = OS::getClockRealtime().addMS(timeout);
+			timespec ts = future.toTimespec();
+			return pthread_mutex_timedlock(&mutex, &ts) == 0;
 		}
 	}
 

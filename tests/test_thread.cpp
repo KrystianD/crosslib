@@ -21,7 +21,7 @@ void fn0()
 TEST(crosslib, thread)
 {
 	Thread th(fn0);
-	th.run();
+	th.start();
 	th.join();
 	ASSERT_EQ(cnt, 1);
 }
@@ -33,7 +33,7 @@ void fn1()
 TEST(crosslib, thread_join)
 {
 	Thread th(fn1);
-	th.run();
+	th.start();
 	ASSERT_EQ(th.join(0), false);
 	ASSERT_EQ(th.join(10), false);
 	ASSERT_EQ(th.join(50), true);
@@ -46,7 +46,7 @@ void fn2()
 TEST(crosslib, thread_isrunning)
 {
 	Thread th(fn2);
-	th.run();
+	th.start();
 	ASSERT_EQ(th.isRunning(), 1);
 	OS::sleep(50);
 	ASSERT_EQ(th.isRunning(), 0);
@@ -57,7 +57,7 @@ TEST(crosslib, thread_stack)
 	ThreadAttributes attrs;
 	attrs.stackSize = 20000;
 	Thread th(attrs, fn0);
-	th.run();
+	th.start();
 	th.join();
 }
 
@@ -86,8 +86,8 @@ TEST(crosslib, thread_same_priority)
 	Thread th2(attrs, fn4);
 
 	cnt1 = cnt2 = 0;
-	th1.run();
-	th2.run();
+	th1.start();
+	th2.start();
 
 	th1.join();
 	ASSERT_EQ(cnt1, 10);
@@ -108,8 +108,8 @@ TEST(crosslib, thread_different_priority)
 	Thread th2(attrs, fn4);
 
 	cnt1 = cnt2 = 0;
-	th1.run();
-	th2.run();
+	th1.start();
+	th2.start();
 
 	th1.join();
 	ASSERT_EQ(cnt1, 10);
@@ -123,7 +123,7 @@ TEST(crosslib, thread_move_ctr)
 {
 	Thread th(fn0);
 	Thread th2(std::move(th));
-	th2.run();
+	th2.start();
 	th2.join();
 }
 
@@ -138,7 +138,7 @@ TEST(crosslib, thread_move_assign)
 	Thread th(fn0);
 	Thread th2;
 	th2 = std::move(th);
-	th2.run();
+	th2.start();
 	th2.join();
 }
 
@@ -151,7 +151,7 @@ TEST(crosslib, thread_userdata)
 	void* userdata = (void*)0xaabbccdd;
 	Thread th(fn5, userdata);
 	ok = false;
-	th.run();
+	th.start();
 	th.join();
 	ASSERT_EQ(ok, true);
 }
