@@ -6,6 +6,7 @@
 #include <CLMutex.h>
 #include <CLOS.h>
 #include <CLSemaphore.h>
+#include <CLThread.h>
 
 #include "CLQueue.h"
 

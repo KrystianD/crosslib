@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <hFramework.h>
+
 namespace crosslib {
 class GenericQueue {
 	hGenericQueue queue;

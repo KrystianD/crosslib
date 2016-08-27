@@ -1,5 +1,5 @@
-#ifndef __TCCONDVAR_H__
-#define __TCCONDVAR_H__
+#ifndef __CLCONDVAR_H__
+#define __CLCONDVAR_H__
 
 #include <pthread.h>
 #include <sys/time.h>

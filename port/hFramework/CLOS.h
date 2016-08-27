@@ -22,6 +22,18 @@ public:
 	{
 		sys.delay(delayMs);
 	}
+	static void exit(int code)
+	{
+		for (;;)
+			OS::sleep(1000);
+	}
+	static void error(const char* fmt, ...)
+	{
+		va_list arg;
+		va_start(fmt, arg);
+		sys.vlog(fmt, arg);
+		exit(99);
+	}
 };
 }
 

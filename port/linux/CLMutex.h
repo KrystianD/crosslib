@@ -66,6 +66,8 @@ public:
 	{
 		if (timeout == 0xffffffff) {
 			return pthread_mutex_lock(&mutex) == 0;
+		} else if (timeout == 0) {
+			return pthread_mutex_trylock(&mutex) == 0;
 		} else {
 			uint64_t future = OS::getTime() + timeout;
 			timespec timeToWait = msToTimeSpec(future);
@@ -75,7 +77,7 @@ public:
 
 	bool trylock()
 	{
-		return pthread_mutex_trylock(&mutex) == 0;
+		return lock(0);
 	}
 
 	void* getMutex()
