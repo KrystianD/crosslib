@@ -7,10 +7,11 @@
 
 #include <hFramework.h>
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
+
 class OS {
 public:
-	static uint32_t getTime32()
+	static uint64_t getTimeMS()
 	{
 		return sys.getRefTime();
 	}
@@ -30,7 +31,7 @@ public:
 	static void error(const char* fmt, ...)
 	{
 		va_list arg;
-		va_start(fmt, arg);
+		va_start(arg, fmt);
 		sys.vlog(fmt, arg);
 		exit(99);
 	}

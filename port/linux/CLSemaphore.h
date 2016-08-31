@@ -4,7 +4,7 @@
 #include "CLMutex.h"
 #include "CLCondVar.h"
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 class Semaphore {
 	Mutex mutex;
 	CondVar cv;

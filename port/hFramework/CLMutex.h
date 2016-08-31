@@ -9,7 +9,7 @@
 
 #include <hFramework.h>
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 
 class Mutex : public hMutex {
 public:

@@ -7,7 +7,8 @@
 
 #include "CLMutex.h"
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
+
 class CondVar {
 	bool initialized;
 	pthread_cond_t cond;
@@ -60,7 +61,7 @@ public:
 	}
 	bool wait(Mutex& mutex, uint32_t timeout = 0xffffffff)
 	{
-		pthread_mutex_t *pmutex = (pthread_mutex_t*)mutex.getMutex();
+		pthread_mutex_t* pmutex = (pthread_mutex_t*)mutex.getMutex();
 		if (timeout == 0xffffffff) {
 			return pthread_cond_wait(&cond, pmutex) == 0;
 		} else {

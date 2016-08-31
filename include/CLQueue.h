@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 template<typename T>
 class Queue {
 	GenericQueue queue;

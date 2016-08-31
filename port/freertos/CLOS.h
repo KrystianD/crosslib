@@ -15,10 +15,11 @@ extern "C" {
 
 extern void crosslib_on_error(const char* fmt, va_list arg);
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
+
 class OS {
 public:
-	static uint32_t getTimeMS()
+	static uint64_t getTimeMS()
 	{
 		return getTime().milliseconds();
 	}

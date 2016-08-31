@@ -6,7 +6,7 @@
 #include "CLUtils.h"
 #include "CLOS.h"
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 
 void* threadFunc(void* arg)
 {

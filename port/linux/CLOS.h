@@ -10,7 +10,7 @@
 
 extern void crosslib_on_error(const char* fmt, va_list arg);
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 
 class OS {
 public:
@@ -41,13 +41,13 @@ public:
 	}
 	static Time getClockRealtime()
 	{
-		timespec ts;
+		struct timespec ts;
 		clock_gettime(CLOCK_REALTIME, &ts);
 		return Time::fromTimespec(ts);
 	}
 	static Time getClockMonotonic()
 	{
-		timespec ts;
+		struct timespec ts;
 		clock_gettime(CLOCK_MONOTONIC, &ts);
 		return Time::fromTimespec(ts);
 	}

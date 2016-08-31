@@ -8,7 +8,7 @@
 #include "CLOS.h"
 #include "CLUtils.h"
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 enum class MutexType { Normal, Recursive, Uninitialized };
 
 class Mutex {

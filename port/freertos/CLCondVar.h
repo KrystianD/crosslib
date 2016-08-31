@@ -8,7 +8,8 @@
 #include "CLMutex.h"
 #include "CLSemaphore.h"
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
+
 class CondVar {
 	Semaphore s, x;
 	volatile bool isWaiting;

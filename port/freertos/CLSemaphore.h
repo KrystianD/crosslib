@@ -12,7 +12,7 @@ extern "C" {
 #include "CLOS.h"
 #include "CLUtils.h"
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 
 class Semaphore {
 	xSemaphoreHandle semphr;
@@ -25,10 +25,8 @@ public:
 
 	~Semaphore()
 	{
-#ifndef FREERTOS_SIM
 		if (semphr)
 			vSemaphoreDelete(semphr);
-#endif
 	}
 
 	Semaphore(Semaphore&& other)
@@ -38,10 +36,8 @@ public:
 	}
 	Semaphore& operator=(Semaphore&& other)
 	{
-#ifndef FREERTOS_SIM
 		if (semphr)
 			vSemaphoreDelete(semphr);
-#endif
 		semphr = other.semphr;
 		other.semphr = 0;
 		return *this;

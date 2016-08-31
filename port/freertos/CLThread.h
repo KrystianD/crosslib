@@ -8,7 +8,7 @@ extern "C" {
 #include <task.h>
 }
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 
 typedef std::function<void(void*)> HandlerUserData;
 typedef std::function<void()> Handler;
@@ -36,6 +36,8 @@ public:
 
 	Thread(Thread&& other)
 	{
+		if (taskHandle)
+			OS::error("cannot move to object with started thread");
 		if (other.taskHandle)
 			OS::error("cannot move started thread");
 		handler = std::move(other.handler);
@@ -44,6 +46,8 @@ public:
 	}
 	Thread& operator=(Thread&& other)
 	{
+		if (taskHandle)
+			OS::error("cannot move to object with started thread");
 		if (other.taskHandle)
 			OS::error("cannot move started thread");
 		handler = std::move(other.handler);

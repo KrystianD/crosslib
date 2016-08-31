@@ -7,7 +7,7 @@
 #include "CLMutex.h"
 #include "CLCondVar.h"
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 class GenericQueue {
 	Mutex mutex;
 	CondVar condVarGet, condVarPut;
@@ -18,7 +18,7 @@ class GenericQueue {
 
 public:
 	GenericQueue(uint32_t maxSize, uint32_t itemSize)
-		: maxSize(maxSize), itemSize(itemSize), _size(0), wrIdx(0), rdIdx(0), array(0)
+		: maxSize(maxSize), itemSize(itemSize), _size(0), wrIdx(0), rdIdx(0), array(nullptr)
 	{
 		array = new uint8_t[maxSize * itemSize];
 	}
@@ -27,7 +27,7 @@ public:
 	{
 		if (array) {
 			delete [] array;
-			array = 0;
+			array = nullptr;
 		}
 	}
 

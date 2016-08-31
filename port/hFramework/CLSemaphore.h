@@ -9,7 +9,8 @@
 
 #include <hFramework.h>
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
+	
 class Semaphore {
 	hSemaphore semphr;
 	

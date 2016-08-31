@@ -5,7 +5,7 @@
 
 #include "CLOS.h"
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 
 typedef std::function<void(void*)> HandlerUserData;
 typedef std::function<void()> Handler;
@@ -41,6 +41,8 @@ public:
 
 	Thread(Thread&& other)
 	{
+		if (thread)
+			OS::error("cannot move to object with started thread");
 		if (other.thread)
 			OS::error("cannot move started thread");
 
@@ -49,6 +51,8 @@ public:
 	}
 	Thread& operator=(Thread&& other)
 	{
+		if (thread)
+			OS::error("cannot move to object with started thread");
 		if (other.thread)
 			OS::error("cannot move started thread");
 

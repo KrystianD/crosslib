@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 }
 
 #endif

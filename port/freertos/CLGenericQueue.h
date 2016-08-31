@@ -2,14 +2,16 @@
 #define __CLGENERICQUEUE_H__
 
 #include <stdint.h>
-#include <string.h>
 
 extern "C" {
 #include "FreeRTOS.h"
 #include "queue.h"
 }
 
-namespace crosslib {
+#include "CLUtils.h"
+
+namespace CROSSLIB_NAMESPACE {
+	
 class GenericQueue {
 	xQueueHandle queue;
 	uint32_t maxSize, itemSize;

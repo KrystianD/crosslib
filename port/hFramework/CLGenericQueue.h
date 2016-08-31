@@ -2,11 +2,11 @@
 #define __CLGENERICQUEUE_H__
 
 #include <stdint.h>
-#include <string.h>
 
 #include <hFramework.h>
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
+
 class GenericQueue {
 	hGenericQueue queue;
 

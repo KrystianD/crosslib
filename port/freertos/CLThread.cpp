@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 
 void threadFunc(void* arg)
 {

@@ -12,7 +12,8 @@ extern "C" {
 #include "CLOS.h"
 #include "CLUtils.h"
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
+
 enum class MutexType { Normal, Recursive, Uninitialized };
 
 class Mutex {
@@ -36,10 +37,8 @@ public:
 
 	virtual ~Mutex()
 	{
-#ifndef FREERTOS_SIM
 		if (type != MutexType::Uninitialized)
 			vSemaphoreDelete(mutex);
-#endif
 	}
 
 	Mutex(Mutex&& other)
@@ -50,10 +49,8 @@ public:
 	}
 	Mutex& operator=(Mutex&& other)
 	{
-#ifndef FREERTOS_SIM
 		if (type != MutexType::Uninitialized)
 			vSemaphoreDelete(mutex);
-#endif
 		type = other.type;
 		mutex = other.mutex;
 		other.type = MutexType::Uninitialized;

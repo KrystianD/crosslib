@@ -10,3 +10,9 @@ endif()
 set(COMMON_SOURCES ${COMMON_SOURCES}
 	"${CROSSLIB_CUR_DIR}/port/${CROSSLIB_PORT}/CLThread.cpp"
 )
+
+if(CROSSLIB_NAMESPACE)
+	add_definitions(-DCROSSLIB_NAMESPACE=${CROSSLIB_NAMESPACE})
+else()
+	add_definitions(-DCROSSLIB_NAMESPACE=crosslib)
+endif()

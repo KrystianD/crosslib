@@ -7,7 +7,7 @@ extern "C" {
 #include "FreeRTOS.h"
 }
 
-namespace crosslib {
+namespace CROSSLIB_NAMESPACE {
 
 static inline uint32_t msToTicks(uint32_t ms)
 {
