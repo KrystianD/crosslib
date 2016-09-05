@@ -8,7 +8,7 @@
 
 #include <CLCommon.h>
 
-extern void crosslib_on_error(const char* fmt, va_list arg);
+extern void CROSSLIB_LOGFUNCNAME(const char* fmt, va_list arg);
 
 namespace CROSSLIB_NAMESPACE {
 
@@ -36,7 +36,7 @@ public:
 	{
 		va_list arg;
 		va_start(arg, fmt);
-		crosslib_on_error(fmt, arg);
+		CROSSLIB_LOGFUNCNAME(fmt, arg);
 		exit(99);
 	}
 	static Time getClockRealtime()
