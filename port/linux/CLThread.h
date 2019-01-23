@@ -1,3 +1,6 @@
+#ifndef __CLTHREAD_H__
+#define __CLTHREAD_H__
+
 #include <pthread.h>
 #include <sys/time.h>
 #include <functional>
@@ -83,3 +86,5 @@ private:
 };
 
 }
+
+#endif

@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "CLGenericQueue.h"
+
 namespace CROSSLIB_NAMESPACE {
 template<typename T>
 class Queue {
@@ -38,6 +40,7 @@ public:
 		return queue.putFront(&item, timeout);
 	}
 
+	// FreeRTOS
 	bool putFromISR(const T& item, long* xHigherPriorityTaskWoken)
 	{
 		return queue.put(&item, xHigherPriorityTaskWoken);

@@ -10,4 +10,6 @@
 
 #include "CLQueue.h"
 
+#include <crosslib_port.h>
+
 #endif

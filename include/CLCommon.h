@@ -20,7 +20,7 @@ struct Time {
 	uint64_t milliseconds() const { return _nanoseconds / 1000000ull; }
 	uint64_t seconds() const { return _nanoseconds / 1000000000ull; }
 
-	timespec toTimespec()
+	timespec toTimespec() const
 	{
 		timespec ts;
 		ts.tv_sec = _nanoseconds / 1000000000ull;
