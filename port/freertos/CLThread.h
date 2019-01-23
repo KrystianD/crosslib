@@ -8,72 +8,73 @@ extern "C" {
 #include <task.h>
 }
 
-namespace CROSSLIB_NAMESPACE {
+namespace CROSSLIB_NAMESPACE
+{
+	typedef std::function<void(void*)> HandlerUserData;
+	typedef std::function<void()> Handler;
 
-typedef std::function<void(void*)> HandlerUserData;
-typedef std::function<void()> Handler;
-
-struct ThreadAttributes {
-	int stackSize, priority;
-	const char* name;
-
-	ThreadAttributes() : stackSize(2 * 1024), priority(-1), name("unnamed") { }
-
-	void setPriority(int priority)
+	struct ThreadAttributes
 	{
-		this->priority = priority;
-	}
-};
+		int stackSize, priority;
+		const char* name;
 
-class Thread {
-public:
-	Thread();
-	Thread(const Handler& handler);
-	Thread(const HandlerUserData& handler, void* userdata);
-	Thread(const ThreadAttributes& attrs, const Handler& handler);
-	Thread(const ThreadAttributes& attrs, const HandlerUserData& handler, void* userdata);
-	~Thread();
+		ThreadAttributes() : stackSize(2 * 1024), priority(-1), name("unnamed") {}
 
-	Thread(Thread&& other)
+		void setPriority(int priority)
+		{
+			this->priority = priority;
+		}
+	};
+
+	class Thread
 	{
-		if (taskHandle)
-			OS::error("cannot move to object with started thread");
-		if (other.taskHandle)
-			OS::error("cannot move started thread");
-		handler = std::move(other.handler);
-		taskSemaphore = std::move(other.taskSemaphore);
-		attrs = other.attrs;
-	}
-	Thread& operator=(Thread&& other)
-	{
-		if (taskHandle)
-			OS::error("cannot move to object with started thread");
-		if (other.taskHandle)
-			OS::error("cannot move started thread");
-		handler = std::move(other.handler);
-		taskSemaphore = std::move(other.taskSemaphore);
-		attrs = other.attrs;
-		return *this;
-	}
+	public:
+		Thread();
+		Thread(const Handler& handler);
+		Thread(const HandlerUserData& handler, void* userdata);
+		Thread(const ThreadAttributes& attrs, const Handler& handler);
+		Thread(const ThreadAttributes& attrs, const HandlerUserData& handler, void* userdata);
+		~Thread();
 
-	void start();
-	bool join(uint32_t timeout = 0xffffffff);
-	bool hasStarted() const;
-	bool isRunning() const;
+		Thread(Thread&& other)
+		{
+			if (taskHandle)
+				OS::error("cannot move to object with started thread");
+			if (other.taskHandle)
+				OS::error("cannot move started thread");
+			handler = std::move(other.handler);
+			taskSemaphore = std::move(other.taskSemaphore);
+			attrs = other.attrs;
+		}
+		Thread& operator=(Thread&& other)
+		{
+			if (taskHandle)
+				OS::error("cannot move to object with started thread");
+			if (other.taskHandle)
+				OS::error("cannot move started thread");
+			handler = std::move(other.handler);
+			taskSemaphore = std::move(other.taskSemaphore);
+			attrs = other.attrs;
+			return *this;
+		}
 
-	xTaskHandle getHandle() const { return taskHandle; }
+		void start();
+		bool join(uint32_t timeout = 0xffffffff);
+		bool hasStarted() const;
+		bool isRunning() const;
 
-private:
-	ThreadAttributes attrs;
-	Handler handler;
+		xTaskHandle getHandle() const { return taskHandle; }
 
-	xTaskHandle taskHandle;
-	Semaphore taskSemaphore;
-	bool running;
+	private:
+		ThreadAttributes attrs;
+		Handler handler;
 
-	Thread(const Thread&) = delete;
+		xTaskHandle taskHandle;
+		Semaphore taskSemaphore;
+		bool running;
 
-	friend void threadFunc(void* arg);
-};
+		Thread(const Thread&) = delete;
 
+		friend void threadFunc(void* arg);
+	};
 }

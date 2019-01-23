@@ -4,58 +4,60 @@
 #include "CLMutex.h"
 #include "CLCondVar.h"
 
-namespace CROSSLIB_NAMESPACE {
-class Semaphore {
-	Mutex mutex;
-	CondVar cv;
-	int count;
-
-public:
-	Semaphore() : count(0) { }
-	~Semaphore() { }
-
-	Semaphore(Semaphore&& other)
+namespace CROSSLIB_NAMESPACE
+{
+	class Semaphore
 	{
-		mutex = std::move(other.mutex);
-		cv = std::move(other.cv);
-		count = other.count;
-	}
-	Semaphore& operator=(Semaphore&& other)
-	{
-		mutex = std::move(other.mutex);
-		cv = std::move(other.cv);
-		count = other.count;
-		return *this;
-	}
+		Mutex mutex;
+		CondVar cv;
+		int count;
 
-	bool give()
-	{
-		MutexGuard guard(mutex);
-		if (count < 1)
-			count++;
-		cv.notifyOne();
-		return true;
-	}
+	public:
+		Semaphore() : count(0) {}
+		~Semaphore() {}
 
-	bool take(uint32_t timeout = 0xffffffff)
-	{
-		MutexGuard guard(mutex);
-		if (cv.waitFor(guard, timeout, [this]() { return count > 0; })) {
-			count--;
-			return true;
-		} else {
-			return false;
+		Semaphore(Semaphore&& other)
+		{
+			mutex = std::move(other.mutex);
+			cv = std::move(other.cv);
+			count = other.count;
 		}
-	}
+		Semaphore& operator=(Semaphore&& other)
+		{
+			mutex = std::move(other.mutex);
+			cv = std::move(other.cv);
+			count = other.count;
+			return *this;
+		}
 
-	bool trytake()
-	{
-		return take(0);
-	}
+		bool give()
+		{
+			MutexGuard guard(mutex);
+			if (count < 1)
+				count++;
+			cv.notifyOne();
+			return true;
+		}
 
-private:
-	Semaphore(const Semaphore&) = delete;
-};
+		bool take(uint32_t timeout = 0xffffffff)
+		{
+			MutexGuard guard(mutex);
+			if (cv.waitFor(guard, timeout, [this]() { return count > 0; })) {
+				count--;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		bool trytake()
+		{
+			return take(0);
+		}
+
+	private:
+		Semaphore(const Semaphore&) = delete;
+	};
 }
 
 #endif

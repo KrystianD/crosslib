@@ -12,56 +12,56 @@ extern "C" {
 #include "CLOS.h"
 #include "CLUtils.h"
 
-namespace CROSSLIB_NAMESPACE {
-
-class Semaphore {
-	xSemaphoreHandle semphr;
-
-public:
-	Semaphore()
+namespace CROSSLIB_NAMESPACE
+{
+	class Semaphore
 	{
-		vSemaphoreCreateBinary(semphr);
-	}
+		xSemaphoreHandle semphr;
 
-	~Semaphore()
-	{
-		if (semphr)
-			vSemaphoreDelete(semphr);
-	}
+	public:
+		Semaphore()
+		{
+			vSemaphoreCreateBinary(semphr);
+		}
 
-	Semaphore(Semaphore&& other)
-	{
-		semphr = other.semphr;
-		other.semphr = 0;
-	}
-	Semaphore& operator=(Semaphore&& other)
-	{
-		if (semphr)
-			vSemaphoreDelete(semphr);
-		semphr = other.semphr;
-		other.semphr = 0;
-		return *this;
-	}
+		~Semaphore()
+		{
+			if (semphr)
+				vSemaphoreDelete(semphr);
+		}
 
-	bool give()
-	{
-		return xSemaphoreGive(semphr) == pdTRUE;
-	}
+		Semaphore(Semaphore&& other)
+		{
+			semphr = other.semphr;
+			other.semphr = 0;
+		}
+		Semaphore& operator=(Semaphore&& other)
+		{
+			if (semphr)
+				vSemaphoreDelete(semphr);
+			semphr = other.semphr;
+			other.semphr = 0;
+			return *this;
+		}
 
-	bool take(uint32_t timeout = 0xffffffff)
-	{
-		return xSemaphoreTake(semphr, msToTicks(timeout)) == pdTRUE;
-	}
+		bool give()
+		{
+			return xSemaphoreGive(semphr) == pdTRUE;
+		}
 
-	bool trytake()
-	{
-		return take(0);
-	}
+		bool take(uint32_t timeout = 0xffffffff)
+		{
+			return xSemaphoreTake(semphr, msToTicks(timeout)) == pdTRUE;
+		}
 
-private:
-	Semaphore(const Semaphore&) = delete;
-};
+		bool tryTake()
+		{
+			return take(0);
+		}
 
+	private:
+		Semaphore(const Semaphore&) = delete;
+	};
 }
 
 #endif

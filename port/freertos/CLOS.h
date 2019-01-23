@@ -15,35 +15,36 @@ extern "C" {
 
 extern void CROSSLIB_LOGFUNCNAME(const char* fmt, va_list arg);
 
-namespace CROSSLIB_NAMESPACE {
-
-class OS {
-public:
-	static uint64_t getTimeMS()
+namespace CROSSLIB_NAMESPACE
+{
+	class OS
 	{
-		return getTime().milliseconds();
-	}
-	static Time getTime()
-	{
-		return Time::fromMilliseconds(xTaskGetTickCount() * 1000 / configTICK_RATE_HZ);
-	}
-	static void sleep(uint32_t delayMs)
-	{
-		vTaskDelay(msToTicks(delayMs));
-	}
-	static void exit(int code)
-	{
-		for (;;)
-			OS::sleep(1000);
-	}
-	static void error(const char* fmt, ...)
-	{
-		va_list arg;
-		va_start(arg, fmt);
-		CROSSLIB_LOGFUNCNAME(fmt, arg);
-		exit(99);
-	}
-};
+	public:
+		static uint64_t getTimeMS()
+		{
+			return getTime().milliseconds();
+		}
+		static Time getTime()
+		{
+			return Time::fromMilliseconds(xTaskGetTickCount() * 1000 / configTICK_RATE_HZ);
+		}
+		static void sleep(uint32_t delayMs)
+		{
+			vTaskDelay(msToTicks(delayMs));
+		}
+		static void exit(int code)
+		{
+			for (;;)
+				OS::sleep(1000);
+		}
+		static void error(const char* fmt, ...)
+		{
+			va_list arg;
+			va_start(arg, fmt);
+			CROSSLIB_LOGFUNCNAME(fmt, arg);
+			exit(99);
+		}
+	};
 }
 
 #endif

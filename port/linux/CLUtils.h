@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <time.h>
 
-namespace CROSSLIB_NAMESPACE {
-
+namespace CROSSLIB_NAMESPACE
+{
 }
 
 #endif

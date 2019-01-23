@@ -7,17 +7,15 @@ extern "C" {
 #include "FreeRTOS.h"
 }
 
-namespace CROSSLIB_NAMESPACE {
-
-static inline uint32_t msToTicks(uint32_t ms)
+namespace CROSSLIB_NAMESPACE
 {
-	if (ms == 0xffffffff) {
-		return 0xffffffff;
-	} else {
-		return ms * configTICK_RATE_HZ / 1000;
+	static inline uint32_t msToTicks(uint32_t ms)
+	{
+		if (ms == 0xffffffff)
+			return 0xffffffff;
+		else
+			return ms * configTICK_RATE_HZ / 1000;
 	}
-}
-
 }
 
 #endif

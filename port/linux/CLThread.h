@@ -8,83 +8,87 @@
 
 #include "CLOS.h"
 
-namespace CROSSLIB_NAMESPACE {
+namespace CROSSLIB_NAMESPACE
+{
+	typedef std::function<void(void*)> HandlerUserData;
+	typedef std::function<void()> Handler;
 
-typedef std::function<void(void*)> HandlerUserData;
-typedef std::function<void()> Handler;
-
-enum class Scheduler { Default, Other, Batch, Idle, FIFO, RoundRobin };
-
-struct ThreadAttributes {
-	int stackSize, priority;
-	Scheduler scheduler;
-	const char* name;
-
-	ThreadAttributes()
-		: stackSize(2 * 1024 * 1024), priority(-1),
-		  scheduler(Scheduler::Default), name("unnamed")
+	enum class Scheduler
 	{
-	}
+		Default, Other, Batch, Idle, FIFO, RoundRobin
+	};
 
-	void setPriority(Scheduler scheduler, int priority)
+	struct ThreadAttributes
 	{
-		this->scheduler = scheduler;
-		this->priority = priority;
-	}
-};
+		int stackSize, priority;
+		Scheduler scheduler;
+		const char* name;
 
-class Thread {
-public:
-	Thread();
-	Thread(const Handler& handler);
-	Thread(const HandlerUserData& handler, void* userdata);
-	Thread(const ThreadAttributes& attrs, const Handler& handler);
-	Thread(const ThreadAttributes& attrs, const HandlerUserData& handler, void* userdata);
-	~Thread();
+		ThreadAttributes()
+						: stackSize(2 * 1024 * 1024), priority(-1),
+						  scheduler(Scheduler::Default), name("unnamed")
+		{
+		}
 
-	Thread(Thread&& other)
+		void setPriority(Scheduler scheduler, int priority)
+		{
+			this->scheduler = scheduler;
+			this->priority = priority;
+		}
+	};
+
+	class Thread
 	{
-		if (thread)
-			OS::error("cannot move to object with started thread");
-		if (other.thread)
-			OS::error("cannot move started thread");
+	public:
+		Thread();
+		Thread(const Handler& handler);
+		Thread(const HandlerUserData& handler, void* userdata);
+		Thread(const ThreadAttributes& attrs, const Handler& handler);
+		Thread(const ThreadAttributes& attrs, const HandlerUserData& handler, void* userdata);
+		~Thread();
 
-		handler = std::move(other.handler);
-		attrs = other.attrs;
-	}
-	Thread& operator=(Thread&& other)
-	{
-		if (thread)
-			OS::error("cannot move to object with started thread");
-		if (other.thread)
-			OS::error("cannot move started thread");
+		Thread(Thread&& other)
+		{
+			if (thread)
+				OS::error("cannot move to object with started thread");
+			if (other.thread)
+				OS::error("cannot move started thread");
 
-		handler = std::move(other.handler);
-		attrs = other.attrs;
-		return *this;
-	}
+			handler = std::move(other.handler);
+			attrs = other.attrs;
+		}
+		Thread& operator=(Thread&& other)
+		{
+			if (thread)
+				OS::error("cannot move to object with started thread");
+			if (other.thread)
+				OS::error("cannot move started thread");
 
-	void start();
-	bool join(uint32_t timeout = 0xffffffff);
-	bool hasStarted() const;
-	bool isRunning() const;
+			handler = std::move(other.handler);
+			attrs = other.attrs;
+			return *this;
+		}
 
-	int getId();
-	pthread_t getHandle() const { return thread; }
+		void start();
+		bool join(uint32_t timeout = 0xffffffff);
+		bool hasStarted() const;
+		bool isRunning() const;
 
-	static void currentSetScheduler(Scheduler sched, int priority);
+		int getId();
+		pthread_t getHandle() const { return thread; }
 
-private:
-	ThreadAttributes attrs;
-	Handler handler;
+		static void currentSetScheduler(Scheduler sched, int priority);
 
-	pthread_t thread;
+	private:
+		ThreadAttributes attrs;
+		Handler handler;
 
-	Thread(const Thread&) = delete;
+		pthread_t thread;
 
-	friend void* threadFunc(void* arg);
-};
+		Thread(const Thread&) = delete;
 
+		friend void* threadFunc(void* arg);
+	};
 }
 
 #endif

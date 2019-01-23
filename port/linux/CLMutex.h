@@ -8,106 +8,112 @@
 #include "CLOS.h"
 #include "CLUtils.h"
 
-namespace CROSSLIB_NAMESPACE {
-enum class MutexType { Normal, Recursive, Uninitialized };
-
-class Mutex {
-	bool initialized;
-	pthread_mutex_t mutex;
-
-public:
-	Mutex(MutexType type = MutexType::Normal) : initialized(true)
+namespace CROSSLIB_NAMESPACE
+{
+	enum class MutexType
 	{
-		pthread_mutexattr_t attr;
-		pthread_mutexattr_init(&attr);
-		switch (type) {
-		case MutexType::Normal:
-			pthread_mutex_init(&mutex, NULL);
-			break;
-		case MutexType::Recursive:
-			pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-			pthread_mutex_init(&mutex, &attr);
-			break;
-		default:
-			break;
+		Normal, Recursive, Uninitialized
+	};
+
+	class Mutex
+	{
+		bool initialized;
+		pthread_mutex_t mutex;
+
+	public:
+		Mutex(MutexType type = MutexType::Normal) : initialized(true)
+		{
+			pthread_mutexattr_t attr;
+			pthread_mutexattr_init(&attr);
+			switch (type) {
+				case MutexType::Normal:
+					pthread_mutex_init(&mutex, NULL);
+					break;
+				case MutexType::Recursive:
+					pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+					pthread_mutex_init(&mutex, &attr);
+					break;
+				default:
+					break;
+			}
+			pthread_mutexattr_destroy(&attr);
 		}
-		pthread_mutexattr_destroy(&attr);
-	}
 
-	virtual ~Mutex()
-	{
-		if (!initialized)
-			return;
-		pthread_mutex_destroy(&mutex);
-	}
-
-	Mutex(Mutex&& other)
-	{
-		initialized = other.initialized;
-		mutex = other.mutex;
-		other.initialized = false;
-	}
-	Mutex& operator=(Mutex&& other)
-	{
-		if (initialized)
+		virtual ~Mutex()
+		{
+			if (!initialized)
+				return;
 			pthread_mutex_destroy(&mutex);
-		initialized = other.initialized;
-		mutex = other.mutex;
-		other.initialized = false;
-		return *this;
-	}
-
-	bool unlock()
-	{
-		return pthread_mutex_unlock(&mutex) == 0;
-	}
-
-	bool lock(uint32_t timeout = 0xffffffff)
-	{
-		if (timeout == 0xffffffff) {
-			return pthread_mutex_lock(&mutex) == 0;
-		} else if (timeout == 0) {
-			return pthread_mutex_trylock(&mutex) == 0;
-		} else {
-			Time future = OS::getClockRealtime().addMS(timeout);
-			timespec ts = future.toTimespec();
-			return pthread_mutex_timedlock(&mutex, &ts) == 0;
 		}
-	}
 
-	bool trylock()
+		Mutex(Mutex&& other)
+		{
+			initialized = other.initialized;
+			mutex = other.mutex;
+			other.initialized = false;
+		}
+		Mutex& operator=(Mutex&& other)
+		{
+			if (initialized)
+				pthread_mutex_destroy(&mutex);
+			initialized = other.initialized;
+			mutex = other.mutex;
+			other.initialized = false;
+			return *this;
+		}
+
+		bool unlock()
+		{
+			return pthread_mutex_unlock(&mutex) == 0;
+		}
+
+		bool lock(uint32_t timeout = 0xffffffff)
+		{
+			if (timeout == 0xffffffff) {
+				return pthread_mutex_lock(&mutex) == 0;
+			} else if (timeout == 0) {
+				return pthread_mutex_trylock(&mutex) == 0;
+			} else {
+				Time future = OS::getClockRealtime().addMS(timeout);
+				timespec ts = future.toTimespec();
+				return pthread_mutex_timedlock(&mutex, &ts) == 0;
+			}
+		}
+
+		bool trylock()
+		{
+			return lock(0);
+		}
+
+		void* getMutex()
+		{
+			return &mutex;
+		}
+
+	private:
+		Mutex(const Mutex&) = delete;
+	};
+
+	class RecursiveMutex : public Mutex
 	{
-		return lock(0);
-	}
+	public:
+		RecursiveMutex() : Mutex(MutexType::Recursive) {}
+		~RecursiveMutex() {}
+	};
 
-	void* getMutex()
+	class MutexGuard
 	{
-		return &mutex;
-	}
+	public:
+		MutexGuard(Mutex& mutex) : mutex(mutex) { mutex.lock(); }
+		~MutexGuard() { mutex.unlock(); }
 
-private:
-	Mutex(const Mutex&) = delete;
-};
+		Mutex& getMutex() { return mutex; }
 
-class RecursiveMutex : public Mutex {
-public:
-	RecursiveMutex() : Mutex(MutexType::Recursive) { }
-	~RecursiveMutex() { }
-};
+	private:
+		Mutex& mutex;
 
-class MutexGuard {
-public:
-	MutexGuard(Mutex& mutex) : mutex(mutex) { mutex.lock(); }
-	~MutexGuard() { mutex.unlock(); }
-
-	Mutex& getMutex() { return mutex; }
-
-private:
-	Mutex& mutex;
-
-	MutexGuard(const MutexGuard&) = delete;
-};
-
+		MutexGuard(const MutexGuard&) = delete;
+	};
 }
 
 #endif

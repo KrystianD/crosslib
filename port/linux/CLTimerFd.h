@@ -11,84 +11,84 @@
 #include <CLCommon.h>
 #include <CLEPoll.h>
 
-namespace CROSSLIB_NAMESPACE {
-
-class TimerFd {
-	int tfd;
-	timespec ts ;
-
-	void createTimer()
+namespace CROSSLIB_NAMESPACE
+{
+	class TimerFd
 	{
-		tfd = timerfd_create(CLOCK_MONOTONIC, 0);
-	}
+		int tfd;
+		timespec ts;
 
-public:
-	TimerFd()
-	{
-		createTimer();
-	}
-	TimerFd(uint32_t ms)
-	{
-		createTimer();
-		setInterval(ms);
-	}
-	~TimerFd()
-	{
-		close(tfd);
-	}
+		void createTimer()
+		{
+			tfd = timerfd_create(CLOCK_MONOTONIC, 0);
+		}
 
-	void setInterval(uint32_t ms)
-	{
-		setInterval(Time::fromMilliseconds(ms));
-	}
-	void setInterval(const Time& time)
-	{
-		ts = time.toTimespec();
-	}
+	public:
+		TimerFd()
+		{
+			createTimer();
+		}
+		TimerFd(uint32_t ms)
+		{
+			createTimer();
+			setInterval(ms);
+		}
+		~TimerFd()
+		{
+			close(tfd);
+		}
 
-	bool addToEpoll(EPoll& epoll)
-	{
-		return epoll.addRead(tfd);
-	}
+		void setInterval(uint32_t ms)
+		{
+			setInterval(Time::fromMilliseconds(ms));
+		}
+		void setInterval(const Time& time)
+		{
+			ts = time.toTimespec();
+		}
 
-	bool removeFromEpoll(EPoll& epoll)
-	{
-		return epoll.remove(tfd);
-	}
+		bool addToEpoll(EPoll& epoll)
+		{
+			return epoll.addRead(tfd);
+		}
 
-	void start()
-	{
-		itimerspec spec;
-		spec.it_interval = ts;
-		spec.it_value = ts;
-		timerfd_settime(tfd, 0, &spec, 0);
-	}
+		bool removeFromEpoll(EPoll& epoll)
+		{
+			return epoll.remove(tfd);
+		}
 
-	void stop()
-	{
-		itimerspec spec;
-		spec.it_interval.tv_sec = 0;
-		spec.it_interval.tv_nsec = 0;
-		spec.it_value.tv_sec = 0;
-		spec.it_value.tv_nsec = 0;
-		timerfd_settime(tfd, 0, &spec, 0);
-	}
+		void start()
+		{
+			itimerspec spec;
+			spec.it_interval = ts;
+			spec.it_value = ts;
+			timerfd_settime(tfd, 0, &spec, 0);
+		}
 
-	void get()
-	{
-		uint64_t val;
-		read(tfd, &val, sizeof(uint64_t));
-	}
+		void stop()
+		{
+			itimerspec spec;
+			spec.it_interval.tv_sec = 0;
+			spec.it_interval.tv_nsec = 0;
+			spec.it_value.tv_sec = 0;
+			spec.it_value.tv_nsec = 0;
+			timerfd_settime(tfd, 0, &spec, 0);
+		}
 
-	bool wait()
-	{
-    get();
-    return true;
-	}
+		void get()
+		{
+			uint64_t val;
+			read(tfd, &val, sizeof(uint64_t));
+		}
 
-	int getFd() const { return tfd; }
-};
+		bool wait()
+		{
+			get();
+			return true;
+		}
 
+		int getFd() const { return tfd; }
+	};
 }
 
 #endif
