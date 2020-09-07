@@ -1,28 +1,20 @@
-# Usage:
-# set(CROSSLIB_PORT linux)
-# include(crosslib.cmake)
+add_library(crosslib STATIC
+        "${CMAKE_CURRENT_LIST_DIR}/port/${CROSSLIB_PORT}/CLThread.cpp")
 
-get_filename_component(CROSSLIB_CUR_DIR ${CMAKE_CURRENT_LIST_FILE} PATH) # for cmake before 2.8.3
-
-include_directories("${CROSSLIB_CUR_DIR}/include/")
-include_directories("${CROSSLIB_CUR_DIR}/port/${CROSSLIB_PORT}/")
-
-if(CROSSLIB_PORT STREQUAL "linux")
-	set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -lpthread -lrt")
-endif()
-
-set(COMMON_SOURCES ${COMMON_SOURCES}
-	"${CROSSLIB_CUR_DIR}/port/${CROSSLIB_PORT}/CLThread.cpp"
-)
+target_include_directories(crosslib PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include/")
+target_include_directories(crosslib PUBLIC "${CMAKE_CURRENT_LIST_DIR}/port/${CROSSLIB_PORT}/")
 
 if(CROSSLIB_NAMESPACE)
-	add_definitions(-DCROSSLIB_NAMESPACE=${CROSSLIB_NAMESPACE})
+    target_compile_definitions(crosslib PUBLIC -DCROSSLIB_NAMESPACE=${CROSSLIB_NAMESPACE})
 else()
-	add_definitions(-DCROSSLIB_NAMESPACE=crosslib)
+    target_compile_definitions(crosslib PUBLIC -DCROSSLIB_NAMESPACE=crosslib)
 endif()
 
 if(CROSSLIB_LOGFUNCNAME)
-	add_definitions(-DCROSSLIB_LOGFUNCNAME=${CROSSLIB_LOGFUNCNAME})
+    target_compile_definitions(crosslib PUBLIC -DCROSSLIB_LOGFUNCNAME=${CROSSLIB_LOGFUNCNAME})
 else()
-	add_definitions(-DCROSSLIB_LOGFUNCNAME=crosslib_on_error)
+    target_compile_definitions(crosslib PUBLIC -DCROSSLIB_LOGFUNCNAME=crosslib_on_error)
 endif()
+
+
+
