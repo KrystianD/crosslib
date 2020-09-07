@@ -29,11 +29,11 @@ namespace CROSSLIB_NAMESPACE
 		{
 			usleep(delayMs * 1000);
 		}
-		static void exit(int code)
+		[[noreturn]] static void exit(int code)
 		{
-			exit(code);
+			::exit(code);
 		}
-		static void error(const char* fmt, ...)
+		[[noreturn]] static void error(const char* fmt, ...)
 		{
 			va_list arg;
 			va_start(arg, fmt);
