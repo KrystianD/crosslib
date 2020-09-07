@@ -37,7 +37,7 @@ namespace CROSSLIB_NAMESPACE
 
 		bool remove(int fd)
 		{
-			epoll_event event;
+			epoll_event event{};
 			event.data.fd = fd;
 			int res = epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event);
 			return res == 0;
@@ -50,7 +50,7 @@ namespace CROSSLIB_NAMESPACE
 
 		int wait(uint32_t timeout = 0xffffffff)
 		{
-			int nfds = epoll_wait(efd, events.data(), events.size(), timeout == 0xffffffff ? -1 : timeout);
+			int nfds = epoll_wait(efd, events.data(), events.size(), timeout == 0xffffffff ? (int)-1 : (int)timeout);
 			if (nfds == -1) {
 				return -1;
 			}
