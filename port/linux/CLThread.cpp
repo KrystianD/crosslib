@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <limits.h>
+#include <errno.h>
 
 #include "CLUtils.h"
 #include "CLOS.h"
