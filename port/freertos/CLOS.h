@@ -20,9 +20,9 @@ namespace CROSSLIB_NAMESPACE
 	class OS
 	{
 	public:
-		static uint64_t getTimeMS()
+		static uint32_t getTimeMs()
 		{
-			return getTime().milliseconds();
+			return xTaskGetTickCount() * 1000 / configTICK_RATE_HZ;
 		}
 		static Time getTime()
 		{
