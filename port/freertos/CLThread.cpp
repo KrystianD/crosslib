@@ -47,13 +47,13 @@ namespace CROSSLIB_NAMESPACE
 		if (!handler)
 			OS::error("no handler for thread");
 
-		int prio = 0;
+		int prio = 1;
 		if (attrs.priority != -1)
 			prio = attrs.priority;
 
 		running = true;
 		if (xTaskCreate(&threadFunc,
-		                (signed char*)attrs.name,
+		                (const char*)attrs.name,
 		                attrs.stackSize / sizeof(uint32_t),
 		                this,
 		                prio,

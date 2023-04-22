@@ -18,7 +18,7 @@ namespace CROSSLIB_NAMESPACE
 		int stackSize, priority;
 		const char* name;
 
-		ThreadAttributes() : stackSize(2 * 1024), priority(-1), name("unnamed") {}
+		ThreadAttributes() : stackSize(configMINIMAL_STACK_SIZE * 4), priority(-1), name("unnamed") {}
 
 		void setPriority(int priority)
 		{
